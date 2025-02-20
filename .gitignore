@@ -1,0 +1,5 @@
+.env
+node_modules/
+cypress/
+download.cy.js/
+.DS_Store
