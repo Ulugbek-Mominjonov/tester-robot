@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "cypress:open": "cypress open --config-file cypress.config.js",
-    "cypress:run": "cypress run --config-file cypress.config.js"
+    "cypress:run": "cypress run  --config-file cypress.config.js"
   },
   "keywords": [],
   "author": "",
