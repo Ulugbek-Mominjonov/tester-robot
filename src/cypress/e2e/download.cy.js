@@ -23,7 +23,7 @@ describe("File Download Test", () => {
         win.WebSocket = function (url, protocols) {
           if (url.includes("wss://127.0.0.1:64443/service/cryptapi")) {
             console.log("WebSocket bloklandi:", url);
-            return { close: () => { } }; // Bo‘sh obyekt qaytariladi
+            return { close: () => {} }; // Bo‘sh obyekt qaytariladi
           }
           return new originalWebSocket(url, protocols);
         };
@@ -36,14 +36,15 @@ describe("File Download Test", () => {
       cy.contains("table", "Войти в систему").click();
       cy.url().should("include", "/");
       cy.wait(2000); // 2 soniya kutish
-      cy.get('body').then(($body) => {
-        if ($body.find('div.z-messagebox-window.z-window-highlighted.z-window-highlighted-shadow').length > 0) {
-          cy.get('button.z-messagebox-btn.z-button-os').click();
+      cy.get("body").then(($body) => {
+        if (
+          $body.find(
+            "div.z-messagebox-window.z-window-highlighted.z-window-highlighted-shadow"
+          ).length > 0
+        ) {
+          cy.get("button.z-messagebox-btn.z-button-os").click();
         }
       });
-
-
-
 
       cy.contains("table", "Отчеты ").click();
       cy.contains("a", " Выписка по счету за период").click();
@@ -63,7 +64,7 @@ describe("File Download Test", () => {
           .type(Cypress.env("TO_DATE"));
         cy.contains("div", " Выгрузить отчет в EXCEL").click();
 
-        cy.wait(3000).then(() => {
+        cy.wait(2000).then(() => {
           cy.task("renameFile", {
             oldName: "Accont_payments.xlsx",
             newName: `ipakyuli_${

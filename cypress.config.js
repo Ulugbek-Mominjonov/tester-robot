@@ -64,7 +64,9 @@ export default defineConfig({
             bank_name: 4,
           },
         });
-        config.env.USERS = response.data.data;
+        config.env.USERS = response.data.data.filter(
+          (user) => user.password && user.accounts.length
+        );
         console.log("✅ USERS API'dan yuklandi:", config.env.USERS);
       } catch (error) {
         console.error("❌ USERS API'dan yuklashda xatolik:", error.message);
