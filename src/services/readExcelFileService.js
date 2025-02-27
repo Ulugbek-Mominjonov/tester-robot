@@ -155,11 +155,8 @@ const sendFilesData = async () => {
         });
       } catch (error) {
         console.log(error);
-        if (error.response) {
-          const errorMessage =
-            `❌ ${error.response?.data?.message}` ?? "❌ No'malum xatolik";
-          sendMessageBot(errorMessage);
-        }
+        const errorMessage = `❌ ${error}` ?? "❌ No'malum xatolik";
+        await sendMessageBot(errorMessage);
         continue;
       }
     }

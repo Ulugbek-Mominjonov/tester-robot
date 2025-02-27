@@ -20,7 +20,7 @@ export default async function fetchUsers() {
     );
 
     console.log("✅ USERS API'dan yuklandi:", users);
-    return users;
+    return [];
   } catch (error) {
     console.error("Error fetching users:", error);
     return [];
