@@ -10,9 +10,6 @@ const config = {
     botToken: process.env.TELEGRAM_BOT_TOKEN,
     chatIds: process.env.TELEGRAM_CHAT_IDS.split(","),
   },
-  cron: {
-    schedule: process.env.CRON_TIME || "* * * * *",
-  },
   cashUrl: process.env.CASH_URL,
   cashUsername: process.env.CASH_USERNAME,
   cashPassword: process.env.CASH_PASSWORD,

@@ -4,7 +4,6 @@ import path from "path";
 import config from "../config/index.js";
 import moment from "moment-timezone";
 import axios from "axios";
-import { log } from "console";
 import { sendMessage as sendMessageBot } from "./telegramService.js";
 import {
   extractAccountNumber,

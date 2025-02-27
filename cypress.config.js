@@ -2,7 +2,7 @@ import { defineConfig } from "cypress";
 import fs from "fs";
 import path from "path";
 import configFile from "./src/config/index.js";
-import axios from "axios";
+import fetchUsers from "./src/services/fetchUsers.js";
 
 export default defineConfig({
   e2e: {
@@ -50,27 +50,7 @@ export default defineConfig({
     },
     async setupNodeEvents(on, config) {
       const downloadsFolder = config.downloadsFolder;
-
-      // API'dan foydalanuvchilarni olish
-      try {
-        const username = config.env.CASH_USERNAME;
-        const password = config.env.CASH_PASSWORD;
-        const response = await axios.get(config.env.CASH_URL, {
-          headers: {
-            Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-            "Content-Type": "application/json",
-          },
-          params: {
-            bank_name: 4,
-          },
-        });
-        config.env.USERS = response.data.data.filter(
-          (user) => user.password && user.accounts.length
-        );
-        console.log("✅ USERS API'dan yuklandi:", config.env.USERS);
-      } catch (error) {
-        console.error("❌ USERS API'dan yuklashda xatolik:", error.message);
-      }
+      config.env.USERS = await fetchUsers();
 
       on("before:browser:launch", (browser = {}, launchOptions) => {
         if (browser.name === "chrome") {

@@ -1,5 +1,3 @@
-import { log } from "console";
-
 describe("File Download Test", () => {
   Cypress.env("USERS").forEach((user) => {
     it("Should login and download a file", () => {
@@ -15,7 +13,7 @@ describe("File Download Test", () => {
 
         win.addEventListener("error", (event) => {
           if (event.message.includes("WebSocket connection")) {
-            event.preventDefault(); // Xatoni to‘xtatamiz
+            event.preventDefault();
           }
         });
 
@@ -23,7 +21,7 @@ describe("File Download Test", () => {
         win.WebSocket = function (url, protocols) {
           if (url.includes("wss://127.0.0.1:64443/service/cryptapi")) {
             console.log("WebSocket bloklandi:", url);
-            return { close: () => {} }; // Bo‘sh obyekt qaytariladi
+            return { close: () => {} };
           }
           return new originalWebSocket(url, protocols);
         };
