@@ -1,5 +1,9 @@
 .env
 node_modules/
-/cypress/
+/cypress/screenshots/
+/cypress/videos/
+/cypress/reports/
+/cypress/coverage/
+/cypress/fixtures/
 download.cy.js/
 .DS_Store

@@ -4,7 +4,6 @@ import path from "path";
 import config from "../config/index.js";
 import moment from "moment-timezone";
 import axios from "axios";
-import { log } from "console";
 import { sendMessage as sendMessageBot } from "./telegramService.js";
 import {
   extractAccountNumber,
@@ -156,11 +155,8 @@ const sendFilesData = async () => {
         });
       } catch (error) {
         console.log(error);
-        if (error.response) {
-          const errorMessage =
-            `❌ ${error.response?.data?.message}` ?? "❌ No'malum xatolik";
-          sendMessageBot(errorMessage);
-        }
+        const errorMessage = `❌ ${error}` ?? "❌ No'malum xatolik";
+        await sendMessageBot(errorMessage);
         continue;
       }
     }

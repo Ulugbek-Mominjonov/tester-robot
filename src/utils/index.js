@@ -16,4 +16,5 @@ function extractTextAndNumber(input) {
   }
 }
 
+
 export { extractAccountNumber, excelDateToJSDate, extractTextAndNumber };
