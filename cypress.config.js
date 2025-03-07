@@ -6,12 +6,9 @@ import fetchUsers from "./src/services/fetchUsers.js";
 
 export default defineConfig({
   e2e: {
-    defaultBrowser: "electron",
-    chromeWebSecurity: false,
+    defaultBrowser: "chrome",
     specPattern: "src/cypress/e2e/**/*.cy.{js,jsx,ts,tsx}",
-    fixturesFolder: "src/cypress/fixtures",
     downloadsFolder: configFile.downloadPath,
-    experimentalInteractiveRunEvents: true,
     env: {
       SITE_URL: configFile.bankUrl,
       CASH_URL: configFile.cashUrl,
@@ -20,23 +17,38 @@ export default defineConfig({
       FROM_DATE: configFile.fromDate,
       TO_DATE: configFile.toDate,
       OLD_FILE_NAME: "Accont_payments.xlsx",
+      USERS: [
+        {
+          id: 39,
+          username: "UBANKQ925",
+          password: "asdf123456+",
+          bank_id: 5,
+          bank_name: "UNIVERSALBANK",
+          accounts: [
+            {
+              aloqabank_login_id: 39,
+              account_number: "20208000105324093002",
+            },
+          ],
+        },
+        // {
+        //   id: 40,
+        //   username: "UBANKQ926",
+        //   password: "asdf123456+",
+        //   bank_id: 5,
+        //   bank_name: "UNIVERSALBANK",
+        //   accounts: [
+        //     {
+        //       aloqabank_login_id: 40,
+        //       account_number: "20208000205324182003",
+        //     },
+        //   ],
+        // },
+      ],
     },
     async setupNodeEvents(on, config) {
       const downloadsFolder = config.downloadsFolder;
-      config.env.USERS = await fetchUsers();
-
-      on("before:browser:launch", (browser = {}, launchOptions) => {
-        if (browser.name === "chrome") {
-          launchOptions.args.push(
-            "--disable-web-security",
-            "--allow-running-insecure-content",
-            "--disable-site-isolation-trials",
-            "--ignore-certificate-errors",
-            "--allow-insecure-localhost"
-          );
-        }
-        return launchOptions;
-      });
+      // config.env.USERS = await fetchUsers();
 
       on("task", {
         renameFile({ account_number }) {

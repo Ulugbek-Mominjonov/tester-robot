@@ -1,88 +1,96 @@
 describe("File Download Test", () => {
   Cypress.env("USERS").forEach((user) => {
     it("Should login and download a file", () => {
-      cy.on("window:before:load", (win) => {
-        win.addEventListener("unhandledrejection", (event) => {
-          if (
-            event.reason.message &&
-            event.reason.message.includes("WebSocket connection")
-          ) {
-            event.preventDefault(); // Xatoni to‘xtatamiz
-          }
-        });
-
-        win.addEventListener("error", (event) => {
-          if (event.message.includes("WebSocket connection")) {
-            event.preventDefault();
-          }
-        });
-
-        const originalWebSocket = win.WebSocket;
-        win.WebSocket = function (url, protocols) {
-          if (url.includes("wss://127.0.0.1:64443/service/cryptapi")) {
-            console.log("WebSocket bloklandi:", url);
-            return { close: () => {} };
-          }
-          return new originalWebSocket(url, protocols);
-        };
-      });
-
       cy.visit(Cypress.env("SITE_URL"));
 
-      cy.contains("tr", "Логин").find('input[type="text"]').type(user.username);
-      cy.get('input[type="password"]').type(user.password);
-      cy.contains("table", "Войти в систему").click();
-      cy.url().should("include", "/");
-      cy.wait(2000); // 2 soniya kutish
-      cy.get("body").then(($body) => {
-        if (
-          $body.find(
-            "div.z-messagebox-window.z-window-highlighted.z-window-highlighted-shadow"
-          ).length > 0
-        ) {
-          $body
-            .find(
-              "div.z-messagebox-window.z-window-highlighted.z-window-highlighted-shadow"
-            )
-            .each(() => {
-              cy.get("button.z-messagebox-btn.z-button-os").first().click();
-            });
+      cy.get('input[name="login"]').type(user.username);
+      cy.get('input[name="password"]').type(user.password);
+      cy.get("button#sButton").click();
 
-          // cy.get("button.z-messagebox-btn.z-button-os").click();
-        }
-      });
-
-      cy.contains("table", "Отчеты ").click();
-      cy.contains("a", " Выписка по счету за период").click();
-
-      user.accounts.forEach((account) => {
-        cy.contains("tr", "Маска счёта").find("i").last().click();
-        cy.contains("tr", account.account_number).click();
-        cy.contains("tr", "Начальная дата")
-          .find('input[type="text"]')
-          .first()
-          .clear()
-          .type(Cypress.env("FROM_DATE"));
-        cy.contains("tr", "Конечная дата")
-          .find('input[type="text"]')
-          .first()
-          .clear()
-          .type(Cypress.env("TO_DATE"));
-        cy.contains("div", " Выгрузить отчет в EXCEL").click();
-
-        cy.wait(2000).then(() => {
-          cy.task("renameFile", {
-            account_number: account.account_number,
-          }).then((result) => {
-            console.log(result);
-          });
+      // JSESSIONID ni saqlash
+      cy.getCookie("JSESSIONID")
+        .should("exist")
+        .then((cookie) => {
+          cy.log("JSESSIONID saqlandi:", cookie.value);
         });
 
-        // cy.wrap(null).wait(3000);
-        cy.get('div[title="Закрыть выгрузку файла..."]').click();
-      });
+      // Отчеты bo'limiga o'tish
+      cy.get("li").contains("Отчеты").click();
+      cy.get("a[href='reports/reports.jsp']").should("be.visible").click();
 
-      cy.contains("table", "Выход ").click();
+      // Main iframe yuklanishini kutish
+      cy.frameLoaded("iframe[name='mainContent']", { timeout: 15000 });
+
+      // Network so'rovni ushlash uchun intercept qo'yish
+      cy.intercept("POST", "**/right.jsp?repld=*").as("rightRequest");
+
+      // Main iframe ichida ishlash
+      cy.iframe("iframe[name='mainContent']").within(() => {
+        // Left iframe yuklanishini kutish
+        cy.frameLoaded("iframe.frameLeft", { timeout: 15000 }).then(() => {
+          cy.iframe("iframe.frameLeft").within(() => {
+            // Knopkani topish
+            cy.get("#tbl")
+              .contains("tr", "Выписка лицевых счетов")
+              .should("be.visible")
+              .then(($el) => {
+                cy.log("Knopka topildi:", $el.text());
+
+                // Pointer-eventsni o'chirish
+                cy.window().then((win) => {
+                  const element = $el[0];
+                  element.style.pointerEvents = "auto"; // Interaktivlikni yoqish
+                  cy.log("Pointer-events: auto qilindi");
+
+                  // Double click hodisasini emulyatsiya qilish (onAction uchun)
+                  const dblclickEvent = new win.Event("dblclick", {
+                    bubbles: true,
+                    cancelable: true,
+                    view: win,
+                  });
+                  element.dispatchEvent(dblclickEvent);
+                  cy.log("Double click hodisasi dispatch qilindi");
+
+                  // Agar onAction ishlamasa, go() funksiyasini to'g'ridan-to'g'ri chaqirish
+                  cy.window().then((win) => {
+                    const form = win.document.querySelector(
+                      "form[name='tblForm']"
+                    );
+                    if (form) {
+                      cy.log("tblForm topildi:", form);
+                      // go() funksiyasini to'g'ri parametrlar bilan chaqirish
+                      win.go({ form: form, param: { submit: 1 } });
+                      cy.log("go() funksiyasi tblForm bilan chaqirildi");
+                    } else {
+                      cy.log("tblForm topilmadi, barcha formlarni tekshirish:");
+                      cy.window().then((win) => {
+                        cy.log("Barcha formalar:", win.document.forms);
+                      });
+                    }
+                  });
+
+                  // Server javobini kutish
+                  cy.wait(5000); // Serverdan javob kelishini kutish
+
+                  // Network so'rovni tekshirish
+                  cy.wait("@rightRequest", { timeout: 15000 }).then(
+                    (interception) => {
+                      cy.log(
+                        "So'rov muvaffaqiyatli ushlandi:",
+                        interception.request.url
+                      );
+                    }
+                  );
+
+                  // Right iframe yuklanishini tekshirish
+                  cy.frameLoaded('iframe[name="right"]', {
+                    timeout: 15000,
+                  }).should("exist");
+                });
+              });
+          });
+        });
+      });
     });
   });
 });
