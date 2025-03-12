@@ -8,13 +8,38 @@ function excelDateToJSDate(date) {
 }
 
 function extractTextAndNumber(input) {
-  const match = input.match(/(.+?)\s*(\d{9})$/);
-  if (match) {
-    return { text: match[1].trim(), number: match[2] };
-  } else {
-    return { text: input.trim(), number: "000000000" };
-  }
+  const account = input.split("/");
+  return {
+    account_number: account[0],
+    inn: account[1],
+    name: account[2],
+  };
 }
 
+function formatDate(input) {
+  let fullYear, paddedMonth, paddedDay;
+  if (input.includes(" ")) {
+    const [datePart] = input.split(" ");
+    [paddedDay, paddedMonth, fullYear] = datePart.split(".");
+  } else {
+    // Split the input string
+    const [day, month, year] = input.split("/").map(Number);
 
-export { extractAccountNumber, excelDateToJSDate, extractTextAndNumber };
+    // Assume 2-digit year is in 2000s (e.g., 11 -> 2011, adjust if needed)
+    fullYear = year < 100 ? 2000 + year : year;
+
+    // Pad day and month with leading zeros
+    paddedDay = String(day).padStart(2, "0");
+    paddedMonth = String(month).padStart(2, "0");
+  }
+
+  // Return in YYYY-MM-DD format
+  return `${fullYear}-${paddedMonth}-${paddedDay}`;
+}
+
+export {
+  extractAccountNumber,
+  excelDateToJSDate,
+  extractTextAndNumber,
+  formatDate,
+};
