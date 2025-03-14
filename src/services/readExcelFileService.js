@@ -101,11 +101,9 @@ const sendFilesData = async () => {
         continue;
       }
       try {
-        await axios.post(
+        const responseExternalApi = await axios.post(
           process.env.MAIN_CASH_FLOW_STORE_URL,
-          {
-            data: body,
-          },
+          { data: body },
           {
             auth: {
               username: process.env.MAIN_USERNAME,
@@ -113,10 +111,10 @@ const sendFilesData = async () => {
             },
           }
         );
-        // console.log(
-        //   `${extractAccountNumber(file)} acount: `,
-        //   responseExternalApi.data.message
-        // );
+        console.log(
+          `${extractAccountNumber(file)} acount: `,
+          responseExternalApi.data.message
+        );
         // await sendMessageBot(
         //   `${extractAccountNumber(file)} acount: ${
         //     responseExternalApi.data.message

@@ -1,46 +1,8 @@
 import { test } from "@playwright/test";
 import config from "../config";
-import fetchUsers from "../services/fetchUsers";
 import path from "path";
 
-let users = [
-  {
-    id: 39,
-    username: "UBANKQ925",
-    password: "asdf123456+",
-    bank_id: 4,
-    bank_name: "AGROBANK",
-    accounts: [
-      {
-        aloqabank_login_id: 39,
-        account_number: "20208000605401349001",
-      },
-    ],
-  },
-  // {
-  //   id: 39,
-  //   username: "UBANKQ926",
-  //   password: "asdf123456+",
-  //   bank_id: 4,
-  //   bank_name: "AGROBANK",
-  //   accounts: [
-  //     {
-  //       aloqabank_login_id: 39,
-  //       account_number: "20208000305324284001",
-  //     },
-  //   ],
-  // },
-];
-
-// test.beforeAll(async () => {
-//   console.log("🚀API’dan foydalanuvchilar olinmoqda...");
-//   users = await fetchUsers();
-//   if (users.length === 0) {
-//     console.log(
-//       "⚠️ API’dan foydalanuvchilar olinmadi, testlar o‘tkazib yuboriladi."
-//     );
-//   }
-// });
+const users = JSON.parse(process.env.USERS);
 
 test.describe("File Download Test", () => {
   users.forEach((user) => {
