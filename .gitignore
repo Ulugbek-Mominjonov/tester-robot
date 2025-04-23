@@ -1,0 +1,15 @@
+.env
+node_modules/
+/cypress/screenshots/
+/cypress/videos/
+/cypress/reports/
+/cypress/coverage/
+/cypress/fixtures/
+download.cy.js/
+.DS_Store
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

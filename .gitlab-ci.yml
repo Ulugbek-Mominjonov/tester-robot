@@ -1,0 +1,36 @@
+include: 
+  - project: auto-bank-fetchers/ci-templates
+    ref: main
+    file:
+      - build-template.yml
+      - deploy-with-compose-template.yml
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      variables:
+        ENV_NAME: "production"
+    - when: never
+
+stages:
+  - build
+  - deploy
+
+build:
+  extends: .build-template
+  tags:
+    - shared
+    - dind
+  variables:
+    IMAGE_TAG: "$ENV_NAME"
+
+deploy:
+  extends: .deploy-compose-template
+  tags:
+    - shared
+    - dind
+  variables:
+    DC_IMAGE_NAME: "$CI_REGISTRY_IMAGE"
+    DC_IMAGE_TAG: "$ENV_NAME"
+    DEPLOYMENT_SERVER_HOST: "$DEPLOYMENT_HOST"
+    APP_DOTENV_FILE: "$APP_DOTENV"
